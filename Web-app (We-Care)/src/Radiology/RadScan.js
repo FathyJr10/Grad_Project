@@ -7,16 +7,15 @@ import ReactQuill from "react-quill";
 import { calculateAge } from "../configure";
 import configure from "../configure";
 
-
 export default function RadScan() {
   const { id } = useParams();
   const location = useLocation();
-
+  const entity_id = sessionStorage.getItem("User_id");
   const [formData, setFormData] = useState({
     patient_id: id,
-    entity_id: "3",
+    entity_id: entity_id,
   });
-  const [content,setContent]=useState()
+  const [content, setContent] = useState();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -78,7 +77,7 @@ export default function RadScan() {
     "video",
     "align",
   ];
-  const age = calculateAge(location.state?.age)
+  const age = calculateAge(location.state?.age);
 
   return (
     <div>
@@ -174,8 +173,10 @@ export default function RadScan() {
             />
           </div>
 
-          <div style={{paddingTop:"20px"}} >
-            <button type="submit" className="submitform">Submit</button>
+          <div style={{ paddingTop: "20px" }}>
+            <button type="submit" className="submitform">
+              Submit
+            </button>
           </div>
         </form>
       </div>

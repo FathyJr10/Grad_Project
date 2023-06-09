@@ -91,7 +91,14 @@ class _rad_scansState extends State<rad_scans> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(scans['name'] ?? ''),
+                                    Row(
+                                      children: [
+                                        Text(scans['name'] ?? ''),
+                                        Text(' - '),
+                                        Text(scans['entityName'].toLowerCase()),
+
+                                      ],
+                                    ),
                                     Text(
                                       date,
                                       style: TextStyle(
@@ -141,6 +148,7 @@ Future<List<Map<String, dynamic>>> fetchScansList(int patientId) async {
       final entityData = await fetcEntityById(scansJson['entity_id'] ?? 0);
       final entityName = entityData['name'] ?? 'not specified';
       scansList.last['entityName'] = entityName;
+      print(scansList);
     }
     await NotficationService.showNotification(
       title: 'New medical record',

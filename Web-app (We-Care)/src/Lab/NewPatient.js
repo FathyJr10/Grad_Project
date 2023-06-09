@@ -10,10 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import configure from "../configure";
 
 export default function NewPatient() {
-  const [formData, setFormData] = useState({
-    chronic: "No Chronic",
-    allergies: "No Allergies",
-  });
+  const [formData, setFormData] = useState({});
   const [firstNameError, setFirstNameError] = useState("");
   const [lastnameerror, setLastNameError] = useState("");
   const [passworderror, setPasswordError] = useState("");
@@ -21,8 +18,9 @@ export default function NewPatient() {
   const [Emergency_phoneNumberError, setEmergencyPhoneNumberError] =
     useState("");
   const [emailError, setEmailError] = useState("");
-  const [allergieserror, setAlergiesError] = useState("");
+  const [allergieserror, setAllergiesError] = useState("");
   const [nationaliderror, setNationalIDError] = useState("");
+  const [chronicError, setchronicError] = useState("");
 
   const handleFirstNameChange = (event) => {
     const fieldName = event.target.name;
@@ -31,12 +29,23 @@ export default function NewPatient() {
       ...formData,
       [fieldName]: event.target.value,
     });
-    if (fieldValue.trim() === "") {
+    if (fieldValue.trim() === "" && fieldName === "name") {
       setFirstNameError("Name is required");
     } else {
       setFirstNameError("");
     }
+    if (fieldValue.trim() === "" && fieldName === "chronic") {
+      setchronicError("Chronic is required, if empty write none");
+    } else {
+      setchronicError("");
+    }
+    if (fieldValue.trim() === "" && fieldName === "Allergies") {
+      setAllergiesError("Allergies is required, if empty write none");
+    } else {
+      setAllergiesError("");
+    }
   };
+
   const handlePasswordChange = (event) => {
     const fieldName = event.target.name;
     const fieldValue = event.target.value;
@@ -45,7 +54,7 @@ export default function NewPatient() {
       [fieldName]: event.target.value,
     });
 
-    if (fieldValue.length < 6) {
+    if (fieldValue.length < 6 || fieldValue.trim() === "") {
       setPasswordError("Password at least 6 digits");
     } else {
       setPasswordError("");
@@ -191,7 +200,20 @@ export default function NewPatient() {
       Emergency_phoneNumberError !== "" ||
       emailError !== "" ||
       nationaliderror !== "" ||
-      !formData.name
+      !formData.name ||
+      !formData.password ||
+      !formData.username ||
+      !formData.birth_date ||
+      !formData.phone ||
+      !formData.emergency_contact ||
+      !formData.address ||
+      !formData.gender ||
+      !formData.marital_status ||
+      !formData.blood_type ||
+      !formData.national_id_number ||
+      !formData.email ||
+      !formData.chronic ||
+      !formData.allergies
     ) {
       notify("Check All inputs Are filled With There Validation");
       return; // Don't submit if there are validation errors
@@ -358,8 +380,8 @@ export default function NewPatient() {
               noValidate
             >
               <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -404,7 +426,7 @@ export default function NewPatient() {
             </select>
           </div>
         </div>
-        <div className="row mb-3">
+        <div className="row ">
           <div className="col md-6">
             <label htmlFor="email">Email Address</label>
             <input
@@ -439,6 +461,41 @@ export default function NewPatient() {
           </div>
         </div>
 
+        <div className="row mb-3">
+          <div className="col-md-6">
+            <label htmlFor="firstName">Chronic</label>
+            <input
+              className="form-control"
+              placeholder="Chronic"
+              type="text"
+              name="chronic"
+              value={formData.chronic}
+              onChange={handleFirstNameChange}
+            />
+            {chronicError && (
+              <p className="error" style={{ color: "red" }}>
+                {chronicError}
+              </p>
+            )}
+          </div>
+          <div className="col-md-6 mb-3">
+            <label htmlFor="lastName">Allergies</label>
+            <input
+              className="form-control"
+              placeholder="allergies"
+              type="text"
+              name="allergies"
+              noValidate
+              value={formData.allergies}
+              onChange={handleFirstNameChange}
+            />
+            {allergieserror && (
+              <p className="error" style={{ color: "red" }}>
+                {allergieserror}
+              </p>
+            )}
+          </div>
+        </div>
         {/* <div className="mb-3">
           <label htmlFor="medicationsAllergies">
             Medications and Allergies

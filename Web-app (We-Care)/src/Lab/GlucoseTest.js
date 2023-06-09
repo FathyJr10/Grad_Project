@@ -38,7 +38,6 @@ function GlucoseTest() {
   const [formData, setFormData] = useState({
     patient_id: id,
     entity_id: entity_id,
-    appointment_id:"3"
   });
 
   const handleSubmit = (event) => {

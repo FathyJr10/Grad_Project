@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        initialRoute: 'login',
+        initialRoute: '/',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: primary,

@@ -11,9 +11,10 @@ export default function UrineExamTest() {
   const { id } = useParams();
   const location = useLocation();
   document.title = "Urine Test / Lab";
+  const entity_id=sessionStorage.getItem("User_id")
   const [formData, setFormData] = useState({
     patient_id: id,
-    entity_id: "2",
+    entity_id: entity_id,
   });
 
   const handleSubmit = (event) => {
@@ -65,19 +66,19 @@ export default function UrineExamTest() {
             </div>
           </div>
           <div>
-          <div className="row mb-4">
-            <div className="col-md-6">
-              <label>Referring Doctor</label>
-              <input
-                className="form-control"
-                type="text"
-                name="referring_doctor"
-                value={formData.referring_doctor}
-                onChange={handleChange}
-                noValidate
-              />
+            <div className="row mb-4">
+              <div className="col-md-6">
+                <label>Referring Doctor</label>
+                <input
+                  className="form-control"
+                  type="text"
+                  name="referring_doctor"
+                  value={formData.referring_doctor}
+                  onChange={handleChange}
+                  noValidate
+                />
+              </div>
             </div>
-          </div>
           </div>
           <h3 className="mb-4">Urine Test</h3>
 
@@ -113,7 +114,9 @@ export default function UrineExamTest() {
           ))}
 
           <div className="mb-9">
-            <button type="submit" className="submitform">Submit</button>
+            <button type="submit" className="submitform">
+              Submit
+            </button>
           </div>
         </form>
       </div>

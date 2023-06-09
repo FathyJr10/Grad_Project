@@ -96,7 +96,7 @@ class BarCode extends StatelessWidget {
               height: size.height * 0.05,
             ),
             Center(
-              child: QrImageView(
+              child: QrImage(
                 data: "${AppUrl.front_Url}patient-info/$id",
                 version: QrVersions.auto,
                 size: qrSize,

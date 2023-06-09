@@ -968,10 +968,10 @@ class UriTestpage extends StatelessWidget {
                       ListTile(
                         leading: Icon(Icons.note),
                         title: Text(
-                          'notes',
+                          'Notes',
                           style: TextStyle(
                             color: urine['comments'] != null
-                                ? Colors.red
+                                ? Colors.black
                                 : Colors.black,
                           ),
                         ),

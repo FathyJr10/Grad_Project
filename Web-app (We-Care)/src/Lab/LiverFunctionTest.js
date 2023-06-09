@@ -33,7 +33,6 @@ function LiverTest() {
   const location = useLocation();
   const [formData, setFormData] = useState({
     patient_id: id,
-    entity_id: "2",
     appointment_id: "14",
   });
 

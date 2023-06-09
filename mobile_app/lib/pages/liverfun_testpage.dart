@@ -460,10 +460,10 @@ class LiverTestpage extends StatelessWidget {
                       ListTile(
                         leading: Icon(Icons.note),
                         title: Text(
-                          'notes',
+                          'Notes',
                           style: TextStyle(
                             color: liver['comments'] != null
-                                ? Colors.red
+                                ? Colors.black
                                 : Colors.black,
                           ),
                         ),

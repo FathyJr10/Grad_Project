@@ -84,9 +84,9 @@ class _MedicationsPageState extends State<MedicationsPage> {
                         .split(',');
 
                     return Padding(
-                      padding: const EdgeInsets.fromLTRB(3, 10, 3, 3),
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                       child: SizedBox(
-                        width: 1000, // Set the desired width for the cards
+                        width: 5000, // Set the desired width for the cards
                         child: Card(
                           elevation: 4.0,
                           shape: RoundedRectangleBorder(
@@ -107,26 +107,26 @@ class _MedicationsPageState extends State<MedicationsPage> {
                                         'Medication:',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 15,
+                                          fontSize: 12,
                                         ),
                                       ),
                                       SizedBox(width: 5),
                                       Text(
                                         medicationList[i],
-                                        style: TextStyle(fontSize: 16),
+                                        style: TextStyle(fontSize: 12),
                                       ),
                                       SizedBox(width: 10),
                                       Text(
                                         'Its Dose:',
                                         style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 15,
+                                          fontSize: 12,
                                         ),
                                       ),
                                       SizedBox(width: 5),
                                       Text(
                                         diagnosisList[i],
-                                        style: TextStyle(fontSize: 16),
+                                        style: TextStyle(fontSize: 12),
                                       ),
                                       SizedBox(width: 10),
                                     ],

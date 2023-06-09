@@ -18,8 +18,8 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
 
   Future<void> fetchData() async {
     int userId = Provider.of<UserIdProvider>(context, listen: false).id!;
-    final response = await http.get(
-        Uri.parse('${AppUrl.Base_Url}/patient/$userId/appointments'));
+    final response = await http
+        .get(Uri.parse('${AppUrl.Base_Url}/patient/$userId/appointments'));
     if (response.statusCode == 200) {
       final List<dynamic> appointmentJsondetails = jsonDecode(response.body);
       final List<Map<String, dynamic>> appointmentdetails = [];
@@ -130,22 +130,27 @@ class _AppointmentDetailsPageState extends State<AppointmentDetailsPage> {
                                 0: FlexColumnWidth(14),
                                 1: FlexColumnWidth(7),
                               },
-                              // border: TableBorder(
-                              //   horizontalInside: BorderSide(
-                              //     color: Colors.grey,
-                              //     width: 1.0,
-                              //   ),
-                              // ),
                               defaultVerticalAlignment:
                                   TableCellVerticalAlignment.middle,
-                              children: appointmentType
-                                  .map<TableRow>((type) => TableRow(children: [
+                              children: appointmentType is List
+                                  ? appointmentType
+                                      .map<TableRow>(
+                                          (type) => TableRow(children: [
+                                                TableCell(
+                                                  child: Text(type.toString()),
+                                                ),
+                                                TableCell(child: SizedBox()),
+                                              ]))
+                                      .toList()
+                                  : [
+                                      TableRow(children: [
                                         TableCell(
-                                          child: Text(type.toString()),
+                                          child:
+                                              Text(appointmentType.toString()),
                                         ),
                                         TableCell(child: SizedBox()),
-                                      ]))
-                                  .toList(),
+                                      ])
+                                    ],
                             ),
                             SizedBox(height: 8.0),
                             Row(
