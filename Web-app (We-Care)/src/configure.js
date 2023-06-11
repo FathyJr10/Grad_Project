@@ -3,7 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 import html2pdf from "html2pdf.js";
 
 export default {
-  backURL: "http://localhost:8080/api/",
+  backURL: "https://wecarre.azurewebsites.net/api/",
   //lesa hnkhod wahed mn el backend
 };
 
