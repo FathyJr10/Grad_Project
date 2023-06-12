@@ -19,7 +19,7 @@ export const calculateAge = (birthDate) => {
   ) {
     age--;
   }
-
+    
   return age;
 };
 
