@@ -6,6 +6,10 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:mobile_app/colors.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+
 
 class MedicineDatabase {
   static Future<Database> open() async {
@@ -84,6 +88,21 @@ class Medicine {
 
   Medicine({required this.name, required this.dose, required this.times});
 }
+class Medication {
+  int id;
+  String name;
+  String price;
+
+  Medication({required this.id, required this.name, required this.price});
+
+  factory Medication.fromJson(Map<String, dynamic> json) {
+    return Medication(
+      id: json['id'],
+      name: json['name'],
+      price: json['price'],
+    );
+  }
+}
 
 class MedicineReminderPage extends StatefulWidget {
   @override
@@ -94,6 +113,20 @@ class _MedicineReminderPageState extends State<MedicineReminderPage> {
   List<Medicine> medicines = [];
   final nameController = TextEditingController();
   final doseController = TextEditingController();
+  Medication? selectedMedication;
+  List<Medication> medications = [];
+
+
+Future<List<Medication>> fetchMedications() async {
+  final response = await http.get(Uri.parse('https://wecarre.azurewebsites.net/api/medications/list'));
+  if (response.statusCode == 200) {
+    final jsonData = json.decode(response.body);
+    return List<Medication>.from(jsonData.map((data) => Medication.fromJson(data)));
+  } else {
+    throw Exception('Failed to fetch medications');
+  }
+}
+
 
 Future<void> _showNotification(
   String title, String body, DateTime scheduledDateTime) async {
@@ -115,74 +148,77 @@ Future<void> _showNotification(
 
 
 void _addMedicineTime() async {
-  final name = nameController.text;
   final dose = int.tryParse(doseController.text);
-  
-  if (name.isEmpty) {
-    _showValidationMessage('Please enter a medicine name');
+
+  if (selectedMedication == null) {
+    _showValidationMessage('Please select a medication');
     return;
   }
-  
+
   if (dose == null || dose <= 0) {
     _showValidationMessage('Please enter a valid dose');
     return;
   }
-  
+
   final existingMedicine = medicines.firstWhere(
-    (medicine) => medicine.name == name && medicine.dose == dose,
-    orElse: () => Medicine(name: name, dose: dose, times: []),
+    (medicine) =>
+        medicine.name == selectedMedication!.name && medicine.dose == dose,
+    orElse: () => Medicine(
+        name: selectedMedication!.name, dose: dose, times: []),
   );
-  
+
   if (existingMedicine.times.length >= dose) {
     _showValidationMessage('You have reached the maximum dose');
     return;
   }
 
-  
-
-    DatePicker.showTimePicker(
-      context,
-      showSecondsColumn: false,
-      onConfirm: (time) async {
-        setState(() {
-          final existingMedicine = medicines.firstWhere(
-            (medicine) => medicine.name == name && medicine.dose == dose,
-            orElse: () => Medicine(name: name, dose: dose, times: []),
-          );
-
-          if (existingMedicine.times.any((existingTime) =>
-              existingTime.hour == time.hour &&
-              existingTime.minute == time.minute)) {
-            // Do not add duplicate time for the same medicine and dose
-            return;
-          }
-
-          existingMedicine.times.add(time);
-          if (!medicines.contains(existingMedicine)) {
-            medicines.add(existingMedicine);
-          }
-        });
-
-        final scheduledDateTime = DateTime(
-          DateTime.now().year,
-          DateTime.now().month,
-          DateTime.now().day,
-          time.hour,
-          time.minute,
+  DatePicker.showTimePicker(
+    context,
+    showSecondsColumn: false,
+    onConfirm: (time) async {
+      setState(() {
+        final existingMedicine = medicines.firstWhere(
+          (medicine) =>
+              medicine.name == selectedMedication!.name && medicine.dose == dose,
+          orElse: () => Medicine(
+              name: selectedMedication!.name, dose: dose, times: []),
         );
 
-        await _showNotification(
-          'Medication Reminder',
-          'A Reminder to take your $name dose',
-          scheduledDateTime,
-        );
+        if (existingMedicine.times.any((existingTime) =>
+            existingTime.hour == time.hour &&
+            existingTime.minute == time.minute)) {
+          // Do not add duplicate time for the same medicine and dose
+          return;
+        }
 
-        final newMedicine =
-            Medicine(name: name, dose: dose, times: [scheduledDateTime]);
-        await MedicineDatabase.insertMedicine(newMedicine);
-      },
-    );
-  }
+        existingMedicine.times.add(time);
+        if (!medicines.contains(existingMedicine)) {
+          medicines.add(existingMedicine);
+        }
+      });
+
+      final scheduledDateTime = DateTime(
+        DateTime.now().year,
+        DateTime.now().month,
+        DateTime.now().day,
+        time.hour,
+        time.minute,
+      );
+
+      await _showNotification(
+        'Medication Reminder',
+        'A Reminder to take your ${selectedMedication!.name} dose',
+        scheduledDateTime,
+      );
+
+      final newMedicine = Medicine(
+          name: selectedMedication!.name,
+          dose: dose,
+          times: [scheduledDateTime]);
+      await MedicineDatabase.insertMedicine(newMedicine);
+    },
+  );
+}
 
   Future<void> _removeMedicineTime(Medicine medicine, int index) async {
     setState(() {
@@ -215,12 +251,23 @@ void _addMedicineTime() async {
       },
     );
   }
+@override
+void initState() {
+  super.initState();
+  _loadMedications();
+      _loadMedicines();
+}
 
-  @override
-  void initState() {
-    super.initState();
-    _loadMedicines();
+Future<void> _loadMedications() async {
+  try {
+    final medications = await fetchMedications();
+    setState(() {
+      this.medications = medications;
+    });
+  } catch (e) {
+    print(e);
   }
+}
 
   Future<void> _loadMedicines() async {
     final storedMedicines = await MedicineDatabase.getAllMedicines();
@@ -265,15 +312,40 @@ void _addMedicineTime() async {
         ),
         body: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Medicine Name',
-                ),
-              ),
-            ),
+Padding(
+  padding: const EdgeInsets.all(12.0),
+  child: DropdownButtonFormField<Medication>(
+    value: selectedMedication,
+    decoration: InputDecoration(
+      labelText: 'Medicine Name',
+    ),
+onChanged: (Medication? value) async {
+  if (value == null) {
+    selectedMedication = null;
+    return;
+  }
+
+  final selected = await showSearch<Medication?>(
+    context: context,
+    delegate: MedicationSearchDelegate(medications),
+  );
+
+  if (selected != null) {
+    setState(() {
+      selectedMedication = selected;
+    });
+  }
+},
+
+    items: medications.map((medication) {
+      return DropdownMenuItem<Medication>(
+        value: medication,
+        child: Text(medication.name),
+      );
+    }).toList(),
+  ),
+),
+
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: TextFormField(
@@ -322,6 +394,72 @@ void _addMedicineTime() async {
     );
   }
 }
+class MedicationSearchDelegate extends SearchDelegate<Medication?> {
+  List<Medication> medications;
+
+  MedicationSearchDelegate(this.medications);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = medications.where((medication) =>
+        medication.name.toLowerCase().contains(query.toLowerCase()));
+
+    return ListView(
+      children: results
+          .map(
+            (medication) => ListTile(
+              title: Text(medication.name),
+              onTap: () {
+                close(context, medication);
+              },
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final results = medications.where((medication) =>
+        medication.name.toLowerCase().contains(query.toLowerCase()));
+
+    return ListView(
+      children: results
+          .map(
+            (medication) => ListTile(
+              title: Text(medication.name),
+              onTap: () {
+                close(context, medication);
+              },
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
 
 
 // // ignore_for_file: use_build_context_synchronously
